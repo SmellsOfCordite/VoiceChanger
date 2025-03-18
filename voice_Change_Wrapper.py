@@ -55,7 +55,7 @@ def get_output_device():
 ######################
 
 #DEbug - List all devices:
-#print_all_devices()
+print_all_devices()
 
 input_device_index = get_input_device()
 
