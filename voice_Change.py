@@ -41,7 +41,7 @@ class VoiceChanger:
 
         # Open audio stream for recording and playback
         self.stream = p.open(format=pyaudio.paInt16,
-                             channels=2,
+                             channels=1,
                              rate=self.rate,
                              input=True,
                              input_device_index = self.input_device_index,
