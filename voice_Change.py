@@ -2,6 +2,9 @@ import pyaudio
 import numpy as np
 from scipy import signal
 
+import voice_Effects
+from voice_Effects import pitch_shift
+
 class VoiceChanger:
     """
     Class to create a voice changer using PyAudio library.
@@ -29,6 +32,7 @@ class VoiceChanger:
         self.rate = rate
         self.chunk_size = chunk_size
         self.stream = None
+
         self.input_device_index = input_device_index
         self.output_device_index = output_device_index
         self.historic_audio = []
@@ -38,18 +42,16 @@ class VoiceChanger:
         """
         Starts the voice changer by initializing the PyAudio stream for recording and playback.
         """
-
-        # Initialize PyAudio
         p = pyaudio.PyAudio()
 
         # Open audio stream for recording and playback
         self.stream = p.open(format=pyaudio.paInt16,
-                             channels=1,
+                             channels=2,
                              rate=self.rate,
                              input=True,
                              input_device_index = self.input_device_index,
                              output=True,
-                             #output_device_index = self.output_device_index,
+                             #output_device_index = self.output_device_index, #Commented out because it breaks everything with a channel error (invalid number of channels)
                              frames_per_buffer=self.chunk_size)
 
         # Start recording and playback
@@ -92,14 +94,18 @@ class VoiceChanger:
         audio_array = np.frombuffer(data, dtype=np.int16)
 
         # Apply voice changing effects (e.g., pitch shifting, time stretching, etc.)
-        #historic audio should have a max size
+                ## TODO - make calls to a file of voice effects instead
+        #trim down historic audio so it has a maximum size
         #The element at [0] is the oldest element
         if len(self.historic_audio) >= self.historic_audio_max:
             del self.historic_audio[0]
         self.historic_audio.append(audio_array)
-        print(self.historic_audio[0])
-        print(len(self.historic_audio))
-        audio_array = signal.resample(audio_array, int(len(audio_array) / 0.95))
+        #print(len(self.historic_audio))
+        #audio_array = audio_array / 10 #I can add arrays to other arrays
+        audio_array = audio_array + self.historic_audio[len(self.historic_audio)-1]
+
+
+        #audio_array = pitch_shift(audio_array, 0.98) #TODO comment this back in when reverb is working
 
         # Convert the processed audio array back to bytes
         processed_data = audio_array.astype(np.int16).tobytes()
