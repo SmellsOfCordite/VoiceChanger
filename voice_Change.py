@@ -1,5 +1,6 @@
 import pyaudio
 import numpy as np
+from scipy import signal
 
 class VoiceChanger:
     """
@@ -30,6 +31,8 @@ class VoiceChanger:
         self.stream = None
         self.input_device_index = input_device_index
         self.output_device_index = output_device_index
+        self.historic_audio = []
+        self.historic_audio_max = 10
 
     def start(self):
         """
@@ -50,7 +53,7 @@ class VoiceChanger:
                              frames_per_buffer=self.chunk_size)
 
         # Start recording and playback
-        print("Voice changer started. Press Ctrl+C to stop.")
+        print("Applying voice effects.")
 
         try:
             while True:
@@ -89,7 +92,14 @@ class VoiceChanger:
         audio_array = np.frombuffer(data, dtype=np.int16)
 
         # Apply voice changing effects (e.g., pitch shifting, time stretching, etc.)
-        # Add your own voice changing effects here
+        #historic audio should have a max size
+        #The element at [0] is the oldest element
+        if len(self.historic_audio) >= self.historic_audio_max:
+            del self.historic_audio[0]
+        self.historic_audio.append(audio_array)
+        print(self.historic_audio[0])
+        print(len(self.historic_audio))
+        audio_array = signal.resample(audio_array, int(len(audio_array) / 0.95))
 
         # Convert the processed audio array back to bytes
         processed_data = audio_array.astype(np.int16).tobytes()
