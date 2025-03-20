@@ -95,14 +95,29 @@ class VoiceChanger:
 
         # Apply voice changing effects (e.g., pitch shifting, time stretching, etc.)
                 ## TODO - make calls to a file of voice effects instead
+                
+                
+                
+        delay_cycles = 5
+        delay_amplitude = 100 / delay_cycles
+        delay_vector_add = []
+                
         #trim down historic audio so it has a maximum size
         #The element at [0] is the oldest element
         if len(self.historic_audio) >= self.historic_audio_max:
             del self.historic_audio[0]
         self.historic_audio.append(audio_array)
         #print(len(self.historic_audio))
-        #audio_array = audio_array / 10 #I can add arrays to other arrays
-        audio_array = audio_array + self.historic_audio[len(self.historic_audio)-1]
+
+        #Add 
+        for cycle in delay_cycles:
+          delay_amplitude = 1 / delay_cycles
+          delay_vector_add = audio_array[len(self.historic_audio) - cycle] * delay_amplitude
+          audio_array = audio_array + delay_vector_add
+        
+        
+        
+        
 
 
         #audio_array = pitch_shift(audio_array, 0.98) #TODO comment this back in when reverb is working
