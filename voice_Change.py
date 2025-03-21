@@ -1,9 +1,11 @@
 import pyaudio
 import numpy as np
 from scipy import signal
+import math
 
 import voice_Effects
 from voice_Effects import pitch_shift
+from voice_Effects import reverb
 
 class VoiceChanger:
     """
@@ -94,35 +96,16 @@ class VoiceChanger:
         audio_array = np.frombuffer(data, dtype=np.int16)
 
         # Apply voice changing effects (e.g., pitch shifting, time stretching, etc.)
-                ## TODO - make calls to a file of voice effects instead
-                
-                
-                
-        delay_cycles = 5
-        delay_amplitude = 100 / delay_cycles
-        delay_vector_add = []
-                
-        #trim down historic audio so it has a maximum size
+
+        #Throw this latest bit of audio into a buffer so we can reference it for effects 
         #The element at [0] is the oldest element
-        if len(self.historic_audio) >= self.historic_audio_max:
+        if len(self.historic_audio) >= self.historic_audio_max: #If buffer is too big, trim it
             del self.historic_audio[0]
         self.historic_audio.append(audio_array)
-        #print(len(self.historic_audio))
 
-        #Add 
-        for cycle in delay_cycles:
-          delay_amplitude = 1 / delay_cycles
-          delay_vector_add = audio_array[len(self.historic_audio) - cycle] * delay_amplitude
-          audio_array = audio_array + delay_vector_add
-        
-        
-        
-        
+        audio_array = reverb(audio_array, self.historic_audio, delay_cycles = 5)
+        audio_array = pitch_shift(audio_array, shift_amount = 0.98)
 
-
-        #audio_array = pitch_shift(audio_array, 0.98) #TODO comment this back in when reverb is working
-
-        # Convert the processed audio array back to bytes
+        # Convert the processed audio array back to bytes to return
         processed_data = audio_array.astype(np.int16).tobytes()
-
         return processed_data
