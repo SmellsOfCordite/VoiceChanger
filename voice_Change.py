@@ -1,5 +1,11 @@
 import pyaudio
 import numpy as np
+from scipy import signal
+import math
+
+import voice_Effects
+from voice_Effects import pitch_shift
+from voice_Effects import reverb
 
 class VoiceChanger:
     """
@@ -28,29 +34,30 @@ class VoiceChanger:
         self.rate = rate
         self.chunk_size = chunk_size
         self.stream = None
+
         self.input_device_index = input_device_index
         self.output_device_index = output_device_index
+        self.historic_audio = []
+        self.historic_audio_max = 10
 
     def start(self):
         """
         Starts the voice changer by initializing the PyAudio stream for recording and playback.
         """
-
-        # Initialize PyAudio
         p = pyaudio.PyAudio()
 
         # Open audio stream for recording and playback
         self.stream = p.open(format=pyaudio.paInt16,
-                             channels=1,
+                             channels=2,
                              rate=self.rate,
                              input=True,
                              input_device_index = self.input_device_index,
                              output=True,
-                             #output_device_index = self.output_device_index,
+                             #output_device_index = self.output_device_index, #Commented out because it breaks everything with a channel error (invalid number of channels)
                              frames_per_buffer=self.chunk_size)
 
         # Start recording and playback
-        print("Voice changer started. Press Ctrl+C to stop.")
+        print("Applying voice effects.")
 
         try:
             while True:
@@ -89,9 +96,16 @@ class VoiceChanger:
         audio_array = np.frombuffer(data, dtype=np.int16)
 
         # Apply voice changing effects (e.g., pitch shifting, time stretching, etc.)
-        # Add your own voice changing effects here
 
-        # Convert the processed audio array back to bytes
+        #Throw this latest bit of audio into a buffer so we can reference it for effects 
+        #The element at [0] is the oldest element
+        if len(self.historic_audio) >= self.historic_audio_max: #If buffer is too big, trim it
+            del self.historic_audio[0]
+        self.historic_audio.append(audio_array)
+
+        audio_array = reverb(audio_array, self.historic_audio, delay_cycles = 5)
+        audio_array = pitch_shift(audio_array, shift_amount = 0.98)
+
+        # Convert the processed audio array back to bytes to return
         processed_data = audio_array.astype(np.int16).tobytes()
-
         return processed_data

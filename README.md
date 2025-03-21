@@ -8,7 +8,7 @@ Controller (..._Wrapper.py) -> Stream manager (voice_Change.py) -> JSON read/wri
   For that, I need to:
   - [x] Get audio streaming working
   - [x] Add pitch shifting
-  - [~] Add reverb
+  - [x] Add reverb (NOTE - THIS HAS BEEN IMPLEMENTED BUT NEEDS TESTING AND REFINEMENT)
   - [ ] Add anything else that sounds cool
   - [ ] Route the audio to my/a virtual mic so software can pick it up and use it
 
@@ -16,6 +16,6 @@ Controller (..._Wrapper.py) -> Stream manager (voice_Change.py) -> JSON read/wri
  - [ ] JSON config for choosing voice effect packs
    - [~] JSON reading and writing
    - [ ] Be able to select effect packs to implement while running the voice changer live
-   - [ ] Parameterised effect functions in a separate file
+   - [x] Parameterised effect functions in a separate file
    - [ ] Have some component that interprets the JSON and calls the right effect functions with parameters
    - [ ] Create new voice effect options in the sw
