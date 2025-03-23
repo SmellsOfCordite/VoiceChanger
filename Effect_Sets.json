@@ -1,0 +1,12 @@
+[
+  {
+    "Effect_Set_ID": 1,
+    "Effect_Set_Name": "Test set one",
+    "Details": [
+      {
+        "Effect_Name": "Test Effect 1",
+        "Effect": "Effect 1 Details"
+      }
+    ]
+  }
+]
