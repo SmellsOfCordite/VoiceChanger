@@ -6,6 +6,9 @@ import math
 import voice_Effects
 from voice_Effects import pitch_shift
 from voice_Effects import reverb
+from voice_Effects import mute
+
+import datetime
 
 class VoiceChanger:
     """
@@ -54,18 +57,36 @@ class VoiceChanger:
                              input_device_index = self.input_device_index,
                              output=True,
                              #output_device_index = self.output_device_index, #Commented out because it breaks everything with a channel error (invalid number of channels)
+                             #output_device_index = self.output_device_index,
                              frames_per_buffer=self.chunk_size)
 
         # Start recording and playback
         print("Applying voice effects.")
+        processing_time_max = 0
+        processing_time_min = 0
+        processing_time_avg = 0
+        processing_count = 0
 
         try:
             while True:
                 # Read audio data from input stream
                 data = self.stream.read(self.chunk_size)
 
+                start_time = datetime.datetime.now()
+
                 # Process the audio data (e.g., apply voice changing effects)
                 processed_data = self.process_audio(data)
+
+                end_time = datetime.datetime.now()
+                processing_time = end_time - start_time
+                processing_count += 1
+                if ":" not in str(processing_time)[-6:]:
+                    processing_time = int(str(processing_time)[-6:])
+                    processing_time_max = max(processing_time, processing_time_max)
+                    processing_time_min = min(processing_time, processing_time_min)
+                    processing_time_avg = processing_time_avg + ((processing_time - processing_time_avg) / (processing_count+1))
+                    print("Min: ", processing_time_min, "| Max :", processing_time_max, "| Avg: ", processing_time_avg)
+                print("Time taken to process audio: ", processing_time, "us") 
 
                 # Write the processed audio data to output stream
                 self.stream.write(processed_data)
@@ -105,6 +126,7 @@ class VoiceChanger:
 
         audio_array = reverb(audio_array, self.historic_audio, delay_cycles = 5)
         audio_array = pitch_shift(audio_array, shift_amount = 0.98)
+        audio_array = mute(audio_array)
 
         # Convert the processed audio array back to bytes to return
         processed_data = audio_array.astype(np.int16).tobytes()

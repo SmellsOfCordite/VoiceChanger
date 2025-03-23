@@ -3,11 +3,13 @@ from scipy import signal
 
 import math #reverb
 
+def mute(audio_array):
+  return np.zeros(len(audio_array))
+
 #Take an audio array and shift it by a % amount
 #  just a few percent is normally more than enough
 def pitch_shift(audio_array, shift_amount):
-  audio_array = signal.resample(audio_array, int(len(audio_array) / shift_amount))
-  return audio_array
+  return signal.resample(audio_array, int(len(audio_array) / shift_amount))
 
 #Take audio array and historic audio, generate reverb from history.
 def reverb(audio_array, historic_audio, delay_cycles):
