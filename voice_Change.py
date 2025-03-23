@@ -1,6 +1,8 @@
 import pyaudio
 import numpy as np
 
+import datetime
+
 class VoiceChanger:
     """
     Class to create a voice changer using PyAudio library.
@@ -46,7 +48,7 @@ class VoiceChanger:
                              input=True,
                              input_device_index = self.input_device_index,
                              output=True,
-                             output_device_index = self.output_device_index,
+                             #output_device_index = self.output_device_index,
                              frames_per_buffer=self.chunk_size)
 
         # Start recording and playback
@@ -57,8 +59,13 @@ class VoiceChanger:
                 # Read audio data from input stream
                 data = self.stream.read(self.chunk_size)
 
+                start_time = datetime.datetime.now()
+
                 # Process the audio data (e.g., apply voice changing effects)
                 processed_data = self.process_audio(data)
+
+                end_time = datetime.datetime.now()
+                print("Time taken to process audio: ", end_time - start_time)
 
                 # Write the processed audio data to output stream
                 self.stream.write(processed_data)
