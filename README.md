@@ -1,6 +1,7 @@
 # VoiceChanger
 A quick and light way of changing your voice, live.
 Uses PyAudio as the workhorse.
+Requires Python3
 
 Controller (..._Wrapper.py) -> Stream manager (voice_Change.py) -> JSON read/write (JSON...py)
 
