@@ -21,3 +21,9 @@ def reverb(audio_array, historic_audio, delay_cycles):
     else: #If there's not enough history to generate more reverb, just return
       break
   return audio_array
+
+def clipping_killer(audio_array, clip_value):
+  for entry in audio_array:
+    if entry > clip_value:
+      entry = clip_value
+  return audio_array

@@ -7,6 +7,7 @@ import voice_Effects
 from voice_Effects import pitch_shift
 from voice_Effects import reverb
 from voice_Effects import mute
+from voice_Effects import clipping_killer
 
 import datetime
 
@@ -77,16 +78,16 @@ class VoiceChanger:
                 # Process the audio data (e.g., apply voice changing effects)
                 processed_data = self.process_audio(data)
 
-                end_time = datetime.datetime.now()
-                processing_time = end_time - start_time
-                processing_count += 1
-                if ":" not in str(processing_time)[-6:]:
-                    processing_time = int(str(processing_time)[-6:])
-                    processing_time_max = max(processing_time, processing_time_max)
-                    processing_time_min = min(processing_time, processing_time_min)
-                    processing_time_avg = processing_time_avg + ((processing_time - processing_time_avg) / (processing_count+1))
-                    print("Min: ", processing_time_min, "| Max :", processing_time_max, "| Avg: ", processing_time_avg)
-                print("Time taken to process audio: ", processing_time, "us") 
+#                end_time = datetime.datetime.now()
+#                processing_time = end_time - start_time
+#                processing_count += 1
+#                if ":" not in str(processing_time)[-6:]:
+#                    processing_time = int(str(processing_time)[-6:])
+#                    processing_time_max = max(processing_time, processing_time_max)
+#                    processing_time_min = min(processing_time, processing_time_min)
+#                    processing_time_avg = processing_time_avg + ((processing_time - processing_time_avg) / (processing_count+1))
+#                    print("Min: ", processing_time_min, "| Max :", processing_time_max, "| Avg: ", processing_time_avg)
+#                print("Time taken to process audio: ", processing_time, "us") 
 
                 # Write the processed audio data to output stream
                 self.stream.write(processed_data)
@@ -126,7 +127,9 @@ class VoiceChanger:
 
         audio_array = reverb(audio_array, self.historic_audio, delay_cycles = 5)
         audio_array = pitch_shift(audio_array, shift_amount = 0.98)
-        audio_array = mute(audio_array)
+        audio_array = clipping_killer(audio_array, 2) # Need to fix this so it actually prevents the too-loudness.
+
+        #audio_array = mute(audio_array)
 
         # Convert the processed audio array back to bytes to return
         processed_data = audio_array.astype(np.int16).tobytes()
